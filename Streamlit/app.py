@@ -206,7 +206,6 @@ st.title("📈 LLM Observability Dashboard")
 # Load dropdown values
 options = get_dropdown_options()
 selected = st.selectbox("Select Project:", options)
-selected='news-app'
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -330,7 +329,6 @@ st.subheader("📊 Span Analysis")
 # --- Get the full data ---
 df_expensive = get_expensive_spans(selected)
 
-st.subheader("📊 Span Analysis (Token + Latency)")
 
 if df_expensive.empty:
     st.info("No span data available.")
