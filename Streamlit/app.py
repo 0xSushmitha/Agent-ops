@@ -7,13 +7,13 @@ import graphviz
 
 # --- DB CONNECTION ---
 ***REMOVED***
-***REMOVED***
-        host=st.secrets["db_host"],
-***REMOVED***
-        dbname=st.secrets["db_name"],
-        user=st.secrets["db_user"],
-        password=st.secrets["db_password"]
-***REMOVED***
+ ***REMOVED***
+         host=st.secrets["db_host"],
+ ***REMOVED***
+         dbname=st.secrets["db_name"],
+         user=st.secrets["db_user"],
+         password=st.secrets["db_password"]
+ ***REMOVED***
 
 # --- FETCH DROPDOWN OPTIONS ---
 @st.cache_data
@@ -201,11 +201,30 @@ def paginate_dataframe(df, label="Data", rows_per_page=20):
     st.dataframe(df.iloc[start_idx:end_idx], use_container_width=True)
 
 # --- STREAMLIT APP UI ---
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import graphviz
+
+st.set_page_config(layout="wide", page_title="LLM Observability Dashboard")
+
+# Sidebar Controls
+with st.sidebar:
+    st.title("⚙️ Control Panel")
+
+    # Project selection
+    selected = st.selectbox("📂 Select Project", get_dropdown_options())
+
+    # Token filter
+    exclude_zero_tokens = st.checkbox("🚫 Exclude spans with 0 tokens", value=False)
+
+    # Placeholder for latency slider (set later based on data)
+    latency_slider_placeholder = st.empty()
+
+
 st.title("📈 LLM Observability Dashboard")
 
-# Load dropdown values
-options = get_dropdown_options()
-selected = st.selectbox("Select Project:", options)
+# Metric Tiles
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -224,33 +243,20 @@ with col4:
     value4 = get_tile4_value(selected)
     st.metric(label="Completion token count", value=value4)
 
-
-# --- GET AND PLOT EACH METRIC ---
-import streamlit as st
-import pandas as pd
-import plotly.express as px
+# Line and Bar Plots
 
 def plot_line(df, y_col, title):
     if df.empty:
         st.warning(f"No data available for {title}.")
         return
-
-    # Ensure 'hour' is a datetime column
     df['hour'] = pd.to_datetime(df['hour'])
-
-    # Create full hourly range from min to max hour
     full_hours = pd.DataFrame({'hour': pd.date_range(start=df['hour'].min(), end=df['hour'].max(), freq='H')})
-
-    # Merge to fill missing hours
     df_full = pd.merge(full_hours, df, on='hour', how='left')
     df_full[y_col] = df_full[y_col].fillna(0)
-
-    # Plot the result
     fig = px.line(df_full, x='hour', y=y_col, title=title)
     fig.update_layout(xaxis_title="Hour", yaxis_title=y_col)
     st.plotly_chart(fig, use_container_width=True)
 
-# --- GET AND PLOT EACH METRIC ---
 def plot_bar(df, y_col="calls", title="Number of LLM Calls Per Day"):
     if df.empty:
         st.warning(f"No data available for {title}.")
@@ -261,7 +267,7 @@ def plot_bar(df, y_col="calls", title="Number of LLM Calls Per Day"):
         y=y_col,
         title=title,
         labels={'date': 'Date', y_col: 'Number of LLM Calls'},
-        text=y_col  # shows value on top of each bar
+        text=y_col
 ***REMOVED***
     fig.update_layout(
         xaxis_title="Date",
@@ -271,26 +277,13 @@ def plot_bar(df, y_col="calls", title="Number of LLM Calls Per Day"):
 ***REMOVED***
     st.plotly_chart(fig, use_container_width=True)
 
-# Get and plot each metric separately
-df1 = get_metric1_data(selected)
-plot_line(df1, 'count', "Traces over Time")
+# Plot metrics
+plot_line(get_metric1_data(selected), 'count', "Traces over Time")
+plot_bar(get_metric2_data(selected), "llm_call_count", "LLM Call Count")
 
-df2 = get_metric2_data(selected)
-plot_bar(df2, "llm_call_count", "llm_call_count")
-
-# df3 = get_metric3_data(selected)
-# plot_metric("Metric 3 Over Time", df3, "metric3")
-
-# df4 = get_metric4_data(selected)
-# plot_metric("Metric 4 Over Time", df4, "metric4")
-
-# Tree for each trace
-
-#1. Show Root Span Dropdown
+# Span Tree Visualization
 st.subheader("🌳 Select Root Span (Top-Level Agent Call)")
-
 df_roots = get_root_spans(selected)
-
 if df_roots.empty:
     st.info("No root-level spans found.")
 else:
@@ -298,62 +291,45 @@ else:
         f"{row['name']} @ {row['start_time']}": (row['trace_rowid'], row['span_id'])
         for _, row in df_roots.iterrows()
     }
-
     selected_label = st.selectbox("Choose a Root Span", list(trace_options.keys()))
     selected_trace_id, selected_root_span_id = trace_options[selected_label]
-
-    # 2. Fetch full span tree for selected trace
     df_trace = get_span_tree_for_trace(selected_trace_id)
 
-    # 3. Visualize with Graphviz
+    def build_trace_tree(df_trace):
+        dot = graphviz.Digraph()
+        for _, row in df_trace.iterrows():
+            label = f"{row['name']}\n{row['latency']:.2f}s"
+            dot.node(row['span_id'], label)
+            if pd.notna(row['parent_id']):
+                dot.edge(row['parent_id'], row['span_id'])
+        return dot
+
     if df_trace.empty:
         st.warning("No spans found for selected trace.")
     else:
-        def build_trace_tree(df_trace):
-            dot = graphviz.Digraph()
-            for _, row in df_trace.iterrows():
-                label = f"{row['name']}\n{row['latency']:.2f}s"
-                dot.node(row['span_id'], label)
-                if pd.notna(row['parent_id']):
-                    dot.edge(row['parent_id'], row['span_id'])
-            return dot
-
         st.subheader(f"📡 Span Tree for: {selected_label}")
-        tree = build_trace_tree(df_trace)
-        st.graphviz_chart(tree)
+        st.graphviz_chart(build_trace_tree(df_trace))
 
-
-# Fetch data
+# Span Analysis Section
 st.subheader("📊 Span Analysis")
-
-# --- Get the full data ---
 df_expensive = get_expensive_spans(selected)
-
 
 if df_expensive.empty:
     st.info("No span data available.")
 else:
-    # Copy the dataframe for filtering
     filtered_df = df_expensive.copy()
-
-    # --- Step 1: Exclude zero-token spans if selected ---
-    exclude_zero_tokens = st.checkbox("Exclude spans with 0 total tokens", value=False)
-
     if exclude_zero_tokens:
         filtered_df = filtered_df[filtered_df["total_tokens"] > 0]
 
-    # Check if anything remains after filtering
     if filtered_df.empty:
         st.warning("No spans left after applying token filter.")
     else:
-        # --- Step 2: Apply latency filter only if there's non-zero latency ---
         if (filtered_df["latency"] > 0).any():
             min_latency = float(filtered_df["latency"].min())
             max_latency = float(filtered_df["latency"].max())
-
             if min_latency < max_latency:
-                latency_range = st.slider(
-                    "Select Latency Range (seconds)",
+                latency_range = latency_slider_placeholder.slider(
+                    "⏱️ Latency Range (seconds)",
                     min_value=min_latency,
                     max_value=max_latency,
                     value=(min_latency, max_latency),
@@ -361,7 +337,6 @@ else:
             ***REMOVED***
                 filtered_df = filtered_df[filtered_df["latency"].between(*latency_range)]
 
-        # Final check before display
         if filtered_df.empty:
             st.warning("No spans match the latency range.")
         else:
