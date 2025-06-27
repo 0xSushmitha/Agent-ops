@@ -330,71 +330,44 @@ st.subheader("📊 Span Analysis")
 # --- Get the full data ---
 df_expensive = get_expensive_spans(selected)
 
+st.subheader("📊 Span Analysis (Token + Latency)")
+
 if df_expensive.empty:
     st.info("No span data available.")
 else:
-    # =========================
-    # SECTION 1 – TOKEN FILTER
-    # =========================
-    st.markdown("### 💰 Token Usage Spans")
+    # Copy the dataframe for filtering
+    filtered_df = df_expensive.copy()
 
+    # --- Step 1: Exclude zero-token spans if selected ---
     exclude_zero_tokens = st.checkbox("Exclude spans with 0 total tokens", value=False)
-    token_df = df_expensive.copy()
 
     if exclude_zero_tokens:
-        token_df = token_df[token_df["total_tokens"] > 0]
+        filtered_df = filtered_df[filtered_df["total_tokens"] > 0]
 
-    if token_df.empty:
-        st.warning("No spans with token usage available after filtering.")
+    # Check if anything remains after filtering
+    if filtered_df.empty:
+        st.warning("No spans left after applying token filter.")
     else:
-        min_tokens = int(token_df["total_tokens"].min())
-        max_tokens = int(token_df["total_tokens"].max())
+        # --- Step 2: Apply latency filter only if there's non-zero latency ---
+        if (filtered_df["latency"] > 0).any():
+            min_latency = float(filtered_df["latency"].min())
+            max_latency = float(filtered_df["latency"].max())
 
-        if min_tokens < max_tokens:
-            token_range = st.slider(
-                "Select Total Token Range",
-                min_value=min_tokens,
-                max_value=max_tokens,
-                value=(min_tokens, max_tokens),
-                step=50
+            if min_latency < max_latency:
+                latency_range = st.slider(
+                    "Select Latency Range (seconds)",
+                    min_value=min_latency,
+                    max_value=max_latency,
+                    value=(min_latency, max_latency),
+                    step=0.1
+            ***REMOVED***
+                filtered_df = filtered_df[filtered_df["latency"].between(*latency_range)]
+
+        # Final check before display
+        if filtered_df.empty:
+            st.warning("No spans match the latency range.")
+        else:
+            st.dataframe(
+                filtered_df.sort_values(by=["total_tokens", "latency"], ascending=False),
+                use_container_width=True
         ***REMOVED***
-            token_df = token_df[
-                token_df["total_tokens"].between(*token_range)
-            ]
-
-        st.dataframe(
-            token_df.sort_values(by="total_tokens", ascending=False).head(20),
-            use_container_width=True
-    ***REMOVED***
-
-    # =========================
-    # SECTION 2 – LATENCY FILTER
-    # =========================
-    st.markdown("### 🕒 High Latency Spans")
-
-    latency_df = df_expensive.copy()
-    non_zero_latency = latency_df[latency_df["latency"] > 0]
-
-    if non_zero_latency.empty:
-        st.info("All spans have 0 latency. Skipping latency range filter.")
-        st.dataframe(latency_df.head(20), use_container_width=True)
-    else:
-        min_latency = float(non_zero_latency["latency"].min())
-        max_latency = float(non_zero_latency["latency"].max())
-
-        latency_range = st.slider(
-            "Select Latency Range (seconds)",
-            min_value=min_latency,
-            max_value=max_latency,
-            value=(min_latency, max_latency),
-            step=0.1
-    ***REMOVED***
-
-        latency_df = latency_df[
-            latency_df["latency"].between(*latency_range)
-        ]
-
-        st.dataframe(
-            latency_df.sort_values(by="latency", ascending=False).head(20),
-            use_container_width=True
-    ***REMOVED***
