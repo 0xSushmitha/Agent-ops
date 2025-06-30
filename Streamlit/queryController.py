@@ -1,5 +1,6 @@
 import pandas as pd
 from DBController import get_connection
+from datetime import timedelta
 
 class LLMQueries:
 
@@ -165,4 +166,4 @@ class LLMQueries:
         """
         with get_connection() as conn:
             df = pd.read_sql(query, conn, params=(project_name,))
-            return df['min_date'][0].date(), df['max_date'][0].date()
+            return df['min_date'][0].date(), df['max_date'][0].date()+timedelta(days=1)
