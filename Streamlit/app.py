@@ -4,6 +4,7 @@ import plotly.express as px
 import graphviz
 from datetime import datetime, timedelta
 from queryController import LLMQueries
+from modules import extract_unique_model_name
 
 st.set_page_config(layout="wide", page_title="LLM Observability Dashboard")
 
@@ -156,3 +157,29 @@ else:
                 filtered_df.sort_values(by=["total_tokens", "latency"], ascending=False),
                 use_container_width=True
         ***REMOVED***
+
+# Model name classfification
+
+model_df= llm.getAttributes(selected,start_date, end_date) 
+
+model_df['model_name']=model_df['attributes'].apply(extract_unique_model_name)
+
+# Explode if multiple models found
+model_df = model_df.explode('model_name')
+
+# Drop rows with no model name
+model_df = model_df[model_df['model_name'].notnull()]
+
+# --- Group data by model_name and agent_name ---
+grouped = model_df.groupby(['model_name', 'agent_name']).size().reset_index(name='count')
+
+# --- Plot ---
+fig = px.bar(
+    grouped,
+    x='model_name',
+    y='count',
+    color='agent_name',
+    barmode='group',  # or 'stack' for stacked bar chart
+    title='Agent Calls per Model'
+)
+st.plotly_chart(fig, use_container_width=True)
