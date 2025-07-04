@@ -171,7 +171,7 @@ class LLMQueries:
         
     def getAttributes(self,selected,start_date, end_date):
      query = """
-        SELECT p.name,s.name as 'agent_name', s.start_time,s.attributes, s. span_kind
+        SELECT p.name,s.name as agent_name, s.start_time,s.attributes, s. span_kind
         FROM projects p
         JOIN traces t ON p.id = t.project_rowid
         JOIN spans s ON t.id = s.trace_rowid
