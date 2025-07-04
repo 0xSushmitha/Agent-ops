@@ -14,9 +14,8 @@ def extract_unique_model_name(attribute):
     # Convert to string for regex matching
     changed = json.dumps(parsed_data)
     # Regex pattern to match the model name like gpt-<version>-<suffix>
-    pattern = r'gpt-[\w\-]+'
-    # Use re.findall() to get all matches (could be multiple per row)
-    matches = re.findall(pattern, changed)
+    pattern = r'gpt[-\w\.]+'  # allows dash, word chars, and dots
+    matches = re.findall(pattern, changed, flags=re.IGNORECASE)
     return list(set(matches))
     # Keep only unique matches and return the first one (or adjust if you want more logic)
     #return list(set(matches))[0] if matches else None  # If matches found, return the first unique model name
