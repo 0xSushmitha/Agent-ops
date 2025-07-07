@@ -182,3 +182,5 @@ class LLMQueries:
      with get_connection() as conn:
         return pd.read_sql(query, conn, params=("%%gpt-%%", selected,start_date, end_date))
  
+
+
