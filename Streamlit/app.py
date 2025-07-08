@@ -118,7 +118,7 @@ with st.expander("Filters",expanded=True):
     with col3:
         end_date = st.date_input("End Date", value=max_date, min_value=min_date, max_value=max_date, label_visibility="visible")
     with col4:
-        st.empty
+        st.markdown("&nbsp;", unsafe_allow_html=True)
 
 # --- Metric Section ---
 val1 = llm.get_tile1_value(selected, start_date, end_date)
