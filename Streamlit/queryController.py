@@ -20,7 +20,7 @@ class LLMQueries:
               SELECT id FROM traces WHERE project_rowid IN (
                   SELECT id FROM projects WHERE name = %s
           ***REMOVED***
-      ***REMOVED***
+       ***REMOVED***   
         """
         with get_connection() as conn:
             return pd.read_sql(query, conn, params=(start_date, end_date, selected))['value'][0]
@@ -92,18 +92,36 @@ class LLMQueries:
     def get_metric2_data(self, selected, start_date, end_date):
         query = """
         SELECT DATE(start_time) AS date,
-               COUNT(*) AS llm_call_count
+       status_code AS status,
+       COUNT(*) AS trace_count
         FROM spans
-        WHERE span_kind = 'LLM'
-          AND start_time BETWEEN %s AND %s
-          AND trace_rowid IN (
+        WHERE start_time BETWEEN %s AND %s
+        AND trace_rowid IN (
               SELECT id FROM traces
               WHERE project_rowid IN (
                   SELECT id FROM projects WHERE name = %s
           ***REMOVED***
-      ***REMOVED***
-        GROUP BY date
-        ORDER BY date;
+     ***REMOVED***     
+        GROUP BY date, status
+        ORDER BY date, status;
+        """
+        with get_connection() as conn:
+            return pd.read_sql(query, conn, params=(start_date, end_date, selected))
+
+    def get_trace_by_name(self, selected, start_date, end_date):
+        query = """
+        SELECT name,
+       COUNT(*) AS trace_count
+        FROM spans
+        WHERE start_time BETWEEN %s AND %s
+        AND trace_rowid IN (
+              SELECT id FROM traces
+              WHERE project_rowid IN (
+                  SELECT id FROM projects WHERE name = %s
+          ***REMOVED***
+     ***REMOVED***     
+        GROUP BY name
+        ORDER BY name;
         """
         with get_connection() as conn:
             return pd.read_sql(query, conn, params=(start_date, end_date, selected))
