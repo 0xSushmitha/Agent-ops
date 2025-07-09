@@ -2,22 +2,11 @@ import psycopg2
 import streamlit as st
 
 
-# ***REMOVED***
-# ***REMOVED***
-#         host=st.secrets["db_host"],
-# ***REMOVED***
-#         dbname=st.secrets["db_name"],
-#         user=st.secrets["db_user"],
-#         password=st.secrets["db_password"]
-# ***REMOVED***
-
-
-# --- DB CONNECTION ---
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
+def get_connection():
+    return psycopg2.connect(
+        host=st.secrets["db_host"],
+        port="5432",
+        dbname=st.secrets["db_name"],
+        user=st.secrets["db_user"],
+        password=st.secrets["db_password"]
+    )

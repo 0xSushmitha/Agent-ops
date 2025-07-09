@@ -19,8 +19,8 @@ class LLMQueries:
           AND trace_rowid IN (
               SELECT id FROM traces WHERE project_rowid IN (
                   SELECT id FROM projects WHERE name = %s
-          ***REMOVED***
-       ***REMOVED***   
+              )
+           )   
         """
         with get_connection() as conn:
             return pd.read_sql(query, conn, params=(start_date, end_date, selected))['value'][0]
@@ -34,8 +34,8 @@ class LLMQueries:
               SELECT id FROM traces 
               WHERE project_rowid IN (
                   SELECT id FROM projects WHERE name = %s
-          ***REMOVED***
-      ***REMOVED***
+              )
+          )
         """
         with get_connection() as conn:
             return pd.read_sql(query, conn, params=(start_date, end_date, selected))['value'][0]
@@ -49,8 +49,8 @@ class LLMQueries:
               SELECT id FROM traces 
               WHERE project_rowid IN (
                   SELECT id FROM projects WHERE name = %s
-          ***REMOVED***
-      ***REMOVED***
+              )
+          )
         """
         with get_connection() as conn:
             return pd.read_sql(query, conn, params=(start_date, end_date, selected))['value'][0]
@@ -64,8 +64,8 @@ class LLMQueries:
               SELECT id FROM traces 
               WHERE project_rowid IN (
                   SELECT id FROM projects WHERE name = %s
-          ***REMOVED***
-      ***REMOVED***
+              )
+          )
         """
         with get_connection() as conn:
             return pd.read_sql(query, conn, params=(start_date, end_date, selected))['value'][0]
@@ -81,8 +81,8 @@ class LLMQueries:
               SELECT id FROM traces
               WHERE project_rowid IN (
                   SELECT id FROM projects WHERE name = %s
-          ***REMOVED***
-      ***REMOVED***
+              )
+          )
         GROUP BY hour
         ORDER BY hour;
         """
@@ -100,8 +100,8 @@ class LLMQueries:
               SELECT id FROM traces
               WHERE project_rowid IN (
                   SELECT id FROM projects WHERE name = %s
-          ***REMOVED***
-     ***REMOVED***     
+              )
+         )     
         GROUP BY date, status
         ORDER BY date, status;
         """
@@ -118,8 +118,8 @@ class LLMQueries:
               SELECT id FROM traces
               WHERE project_rowid IN (
                   SELECT id FROM projects WHERE name = %s
-          ***REMOVED***
-     ***REMOVED***     
+              )
+         )     
         GROUP BY name
         ORDER BY name;
         """
@@ -134,7 +134,7 @@ class LLMQueries:
         WHERE s.parent_id IS NULL
           AND t.project_rowid = (
             SELECT id FROM projects WHERE name = %s
-      ***REMOVED***
+          )
         ORDER BY s.start_time DESC
         """
         with get_connection() as conn:
@@ -163,7 +163,7 @@ class LLMQueries:
         JOIN traces t ON s.trace_rowid = t.id
         WHERE t.project_rowid = (
             SELECT id FROM projects WHERE name = %s
-    ***REMOVED***
+        )
           AND s.start_time BETWEEN %s AND %s
         ORDER BY total_tokens DESC, latency DESC
         """
@@ -179,8 +179,8 @@ class LLMQueries:
             SELECT id FROM traces
             WHERE project_rowid IN (
                 SELECT id FROM projects WHERE name = %s
-        ***REMOVED***
-    ***REMOVED***
+            )
+        )
         """
         with get_connection() as conn:
             df = pd.read_sql(query, conn, params=(project_name,))

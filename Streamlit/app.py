@@ -152,14 +152,14 @@ with col3:
 #         y='name',
 #         orientation='h',
 #         title='Trace Counts by Name'
-# ***REMOVED***
+#     )
 #     # Optional: clean layout for a small visual
 #     fig.update_layout(
 #         height=300,
 #         margin=dict(l=80, r=20, t=40, b=20),
 #         xaxis_title='Count',
 #         yaxis_title='Name'
-# ***REMOVED***
+#     )
 #     fig.update_traces(
 
 #     textposition='inside',
@@ -174,7 +174,7 @@ with col4:
     fig1.update_layout(
         height=230,
         margin=dict(l=80, r=20, t=40, b=20)
-***REMOVED***
+    )
     st.plotly_chart(fig1, use_container_width=True)
 
 # --- Charts ---
@@ -191,7 +191,7 @@ with chart_col1:
             names='status',
             values='trace_count',
             title='Distribution of Total Traces'
-    ***REMOVED***
+        )
         fig.update_traces(textposition='inside', textinfo='percent+label+value')
         st.plotly_chart(fig,use_container_width=True)
     with tab2:
@@ -202,12 +202,12 @@ with chart_col1:
             color='status',
             markers=True,
             title='Trace Counts Over Time by Status'
-    ***REMOVED***
+        )
         fig.update_layout(
         xaxis_title='Date',
         yaxis_title='Number of Traces',
         legend_title='Status Code'
-    ***REMOVED***  
+        )  
         # Render in Streamlit
         st.plotly_chart(fig, use_container_width=True)  
 
@@ -220,7 +220,7 @@ with chart_col2:
         color='agent_name',
         barmode='group',  # or 'stack'
         title='Agent Calls per Model'
-***REMOVED***
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -312,7 +312,7 @@ with chart_col2:
 #             names='status',
 #             values='trace_count',
 #             title='Distribution of Total Traces'
-#     ***REMOVED***
+#         )
 #         fig.update_traces(textposition='inside', textinfo='percent+label+value')
 #         st.plotly_chart(fig,use_container_width=True)
 #     with tab2:
@@ -323,12 +323,12 @@ with chart_col2:
 #             color='status',
 #             markers=True,
 #             title='Trace Counts Over Time by Status'
-#     ***REMOVED***
+#         )
 #         fig.update_layout(
 #         xaxis_title='Date',
 #         yaxis_title='Number of Traces',
 #         legend_title='Status Code'
-#     ***REMOVED***  
+#         )  
 #         # Render in Streamlit
 #         st.plotly_chart(fig, use_container_width=True)  
 
@@ -341,5 +341,5 @@ with chart_col2:
 #         color='agent_name',
 #         barmode='group',  # or 'stack'
 #         title='Agent Calls per Model'
-# ***REMOVED***
+#     )
 #     st.plotly_chart(fig, use_container_width=True)
