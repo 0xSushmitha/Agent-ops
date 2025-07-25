@@ -1,0 +1,44 @@
+{
+  "models": {
+    "LLM": {
+      "prompt_cost_per_token": 0.03, 
+      "completion_cost_per_token": 0.06
+    },
+    "azure/gpt-4": {
+      "prompt_cost_per_token": 0.03, 
+      "completion_cost_per_token": 0.06
+    },
+    "azure/gpt-4.1-nano": {
+      "prompt_cost_per_token": 0.025, 
+      "completion_cost_per_token": 0.05
+    },
+    "azure/gpt-4o": {
+      "prompt_cost_per_token": 0.04, 
+      "completion_cost_per_token": 0.08
+    },
+    "gpt-4": {
+      "prompt_cost_per_token": 0.03, 
+      "completion_cost_per_token": 0.06
+    },
+    "gpt-4.1-nano": {
+      "prompt_cost_per_token": 0.025, 
+      "completion_cost_per_token": 0.05
+    },
+    "gpt-4.1-nano-2025-04-14": {
+      "prompt_cost_per_token": 0.025, 
+      "completion_cost_per_token": 0.05
+    },
+    "gpt-4o": {
+      "prompt_cost_per_token": 0.04, 
+      "completion_cost_per_token": 0.08
+    },
+    "gpt-4o-2024-05-13": {
+      "prompt_cost_per_token": 0.04, 
+      "completion_cost_per_token": 0.08
+    },
+    "gpt-4o-mini-2024-07-18": {
+      "prompt_cost_per_token": 0.02, 
+      "completion_cost_per_token": 0.04
+    }
+  }
+}
