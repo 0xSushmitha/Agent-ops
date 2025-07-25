@@ -187,18 +187,30 @@ class LLMQueries:
             return df['min_date'][0].date(), df['max_date'][0].date()+timedelta(days=1)
         
         
+    # def getAttributes(self,selected,start_date, end_date):
+    #  query = """
+    #     SELECT p.name,s.name as span_name, s.start_time,s.attributes, s. span_kind
+    #     FROM projects p
+    #     JOIN traces t ON p.id = t.project_rowid
+    #     JOIN spans s ON t.id = s.trace_rowid
+    #     WHERE s.attributes::text ILIKE %s
+    #     AND p.name = %s
+    #     AND s.start_time BETWEEN %s AND %s
+    #     """
+    #  with get_connection() as conn:
+    #     return pd.read_sql(query, conn, params=("%%gpt-%%", selected,start_date, end_date))
+ 
     def getAttributes(self,selected,start_date, end_date):
      query = """
-        SELECT p.name,s.name as agent_name, s.start_time,s.attributes, s. span_kind
+        SELECT p.name,s.trace_rowid,s.name as span_name, s.start_time,s.end_time,s.attributes, s. span_kind, 
+        s.span_id,s.parent_id,t.start_time as timestamp,
+        s.cumulative_error_count,s.cumulative_llm_token_count_prompt,s.cumulative_llm_token_count_completion
         FROM projects p
         JOIN traces t ON p.id = t.project_rowid
         JOIN spans s ON t.id = s.trace_rowid
-         WHERE s.attributes::text ILIKE %s
-        AND p.name = %s
+        WHERE p.name = %s
         AND s.start_time BETWEEN %s AND %s
         """
      with get_connection() as conn:
-        return pd.read_sql(query, conn, params=("%%gpt-%%", selected,start_date, end_date))
- 
-
+        return pd.read_sql(query, conn, params=( selected,start_date, end_date))
 
